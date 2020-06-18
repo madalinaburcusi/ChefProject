@@ -1,5 +1,8 @@
 import com.mongodb.Block;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.bson.Document;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -145,20 +148,44 @@ public class UserServices {
     }
 
     public void setRewords(MongoCollection<Document> userDetails){
-        numberOfUser = getUserNumber("Participant".toUpperCase(),userDetails);
-//        System.out.println(numberOfUser);
+        numberOfUser = getUserNumber("PARTICIPANT",userDetails);
 
-        if(numberOfUser > 6)
+        if(numberOfUser == 6)
         {
-            userDetails.find().sort(new Document("GRADE" , -1) );
-
-            Document first = userDetails.find().first();
+            Document first = userDetails.find(eq("TITLE", "PARTICIPANT")).sort(new Document("GRADE" , -1) ).first();
             userDetails.updateOne(eq("ID", first.get("ID")), new Document("$set", new Document("ID", first.get("ID")).append("REWARD","Golden Knife")));
 
             Object firstGrade = first.get("GRADE");
-            Document second = userDetails.find(lt("GRADE",firstGrade)).first();
+
+            Document second = userDetails.find(Filters.and(Filters.eq("TITLE", "PARTICIPANT"),Filters.lt("GRADE",firstGrade))).sort(new Document("GRADE" , -1) ).first();
             userDetails.updateOne(eq("ID", second.get("ID")), new Document("$set", new Document("ID", second.get("ID")).append("REWARD","Apron")));
-            System.out.println(userDetails.find().limit(2));
+            String winnersString = first.toJson();
+            JsonNode jsonNode = null;
+            try {
+                jsonNode = objectMapper.readTree(winnersString);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("No.-NAME------------SCORE---REWARD");
+            String split = "            ";
+            System.out.println(jsonNode.get("ID").get("$numberLong").asText() + "\t" +
+                    jsonNode.get("NAME").asText() +
+                    split.substring(jsonNode.get("NAME").asText().length()) + "\t" +
+                    jsonNode.get("GRADE")+ "\t\t" +
+                    jsonNode.get("REWARD").asText());
+
+            winnersString = second.toJson();
+            jsonNode = null;
+            try {
+                jsonNode = objectMapper.readTree(winnersString);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println(jsonNode.get("ID").get("$numberLong").asText() + "\t" +
+                    jsonNode.get("NAME").asText() +
+                    split.substring(jsonNode.get("NAME").asText().length()) + "\t" +
+                    jsonNode.get("GRADE")+ "\t\t" +
+                    jsonNode.get("REWARD").asText());
             System.out.println();
         }
         else {
