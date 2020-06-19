@@ -1,8 +1,6 @@
 import com.mongodb.Block;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.bson.Document;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -11,7 +9,6 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.lt;
 
 public class UserServices {
     Scanner scanner = new Scanner(System.in);
@@ -125,6 +122,7 @@ public class UserServices {
     }
 
     public void showResults(MongoCollection<Document> userDetails){
+        System.out.println("No.-NAME-----------GRADE");
         Block<Document> printBlock = new Block<Document>() {
             @Override
             public void apply(final Document document) {

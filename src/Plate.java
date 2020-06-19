@@ -16,9 +16,15 @@ public class Plate {
     }
 
     public Plate makeYourPlate(int recipeSize){
+        int ingredientCode;
         while(recipe.size()<recipeSize){
             System.out.print("Ingredient no. " + (recipe.size() + 1) + ": ");
-            addIngredientToRecipe(new Ingredient(Integer.parseInt(scanner.next())));
+            ingredientCode = check.getInt(scanner.next());
+            while(!check.ingredientCode1to15(ingredientCode)){
+                System.out.print("Ingredient no. " + (recipe.size() + 1) + ": ");
+                ingredientCode = check.getInt(scanner.next());
+            }
+            addIngredientToRecipe(new Ingredient(ingredientCode));
         }
         Plate plate = new Plate(recipe);
         return  plate;
@@ -26,7 +32,7 @@ public class Plate {
 
     public int getRecipeSize(){
         int recipeSize;
-        System.out.print("How many ingredients will you use for your recipe. Type 3 or 4: ");
+        System.out.print("How many ingredients will you use for your recipe. Type 3 or 4.\n");
         recipeSize = check.getInt(check.getString());
 
         while(!check.numberIngredients3or4(recipeSize))

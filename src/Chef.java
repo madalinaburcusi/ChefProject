@@ -1,10 +1,6 @@
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -18,9 +14,7 @@ public class Chef {
 
         List<String> menu = new ArrayList<>();
         menu.add("Code 1: Choose your color");
-        menu.add("Code 2: Choose your(team) members");
-        menu.add("Code 3: Check your team score");
-        menu.add("Code 4: Back to main page");
+        menu.add("Code 2: Back to main page");
 
         for (String code : menu) {
             System.out.println(code);
@@ -42,25 +36,15 @@ public class Chef {
                 while (!check.isValidColor(getColor(),colorList))
                 {
                     System.out.println("Choose a valid color.");
-                    getColor();
                 }
 
                 setColor(userID,userDetails,color);
+                backToMenu(userID,userDetails);
                 break;
             }
 
             case 2: {
-
-                break;
-            }
-
-            case 3: {
-
-                break;
-            }
-
-            case 4: {
-                backToMenu(userDetails);
+                backToMainMenu(userDetails);
                 break;
             }
         }
@@ -71,15 +55,20 @@ public class Chef {
                 new Document("$set", new Document("ID", userID).append("COLOR",color)));
     }
 
-    public void backToMenu(MongoCollection<Document> userDetails){
+    public void backToMenu(long userID, MongoCollection<Document> userDetails){
+        startMenu(userID, userDetails);
+    }
+
+    public void backToMainMenu(MongoCollection<Document> userDetails){
         Menu menu = new Menu();
         System.out.println();
         menu.startMenu(userDetails);
     }
-
     public String getColor() {
         System.out.print("Type your color: ");
         color = scanner.next();
         return color;
     }
+
+
 }
