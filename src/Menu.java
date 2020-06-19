@@ -8,8 +8,9 @@ public class Menu {
 
     CheckInput check = new CheckInput();
     UserServices user = new UserServices();
-    Participant menuP = new Participant();
-    Chef menuC = new Chef();
+    Participant participant = new Participant();
+    Chef chef = new Chef();
+    ChefsTeam team = new ChefsTeam();
     int menuCode;
     int userCode;
     long userID;
@@ -22,8 +23,10 @@ public class Menu {
         menu.add("Code 1: View Participant's List");
         menu.add("Code 2: View Chef's List");
         menu.add("Code 3: View Participant's results");
-        menu.add("Code 4: Rewards");
-        menu.add("Code 5: Exit\n");
+        menu.add("Code 4: Generate Random Teams");
+        menu.add("Code 5: View Team Averages");
+        menu.add("Code 6: Rewards");
+        menu.add("Code 7: Exit\n");
 
         for (String code : menu) {
             System.out.println(code);
@@ -48,9 +51,9 @@ public class Menu {
 
                     user.registerUser(userDetails,userCode);
                     if(userCode == 1)
-                        menuP.startContest(userID,userDetails);
+                        participant.startContest(userID,userDetails);
                     else
-                        menuC.startMenu(userID,userDetails);
+                        chef.startMenu(userID,userDetails);
 
                     System.out.println("Thank you for participating!");
                     break;
@@ -70,12 +73,22 @@ public class Menu {
                     break;
                 }
 
-                case 4 : {
+                case 4: {
+                    team.generateRandomTeams(userDetails);
+                    break;
+                }
+
+                case 5: {
+                    team.getTeamAverage(userDetails);
+                    team.viewTeamScores(userDetails);
+                    break;
+                }
+                case 6 : {
                     user.setRewords(userDetails);
                     break;
                 }
 
-                case 5 : {
+                case 7 : {
                 System.out.println("Session ended!");
                 System.exit(0);
                 }
@@ -95,7 +108,6 @@ public class Menu {
             System.out.println(code);
         }
 
-        System.out.print("Your code is: ");
         userCode = check.getInt(check.getString());
 
         while(!check.isValidRegisterCode(userCode))

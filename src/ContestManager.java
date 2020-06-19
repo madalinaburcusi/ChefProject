@@ -10,10 +10,7 @@ public class ContestManager {
         MongoCollection<Document> userDetails = database.getCollection("userDetails");
 
         System.out.println("Welcome to the Chef Show!\n");
-        UserServices user = new UserServices();
-
         Menu menu = new Menu();
-
         menu.startMenu(userDetails);
 
     }
