@@ -1,5 +1,6 @@
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
+
 import java.util.*;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -10,7 +11,8 @@ public class Chef {
     CheckInput check = new CheckInput();
     Scanner scanner = new Scanner(System.in);
     public static List<String> colorList = new ArrayList<>(Arrays.asList("RED", "YELLOW", "GREEN"));
-    public void startMenu(long userID, MongoCollection<Document> userDetails){
+
+    public void startMenu(long userID, MongoCollection<Document> userDetails) {
 
         List<String> menu = new ArrayList<>();
         menu.add("Code 1: Choose your color");
@@ -21,25 +23,24 @@ public class Chef {
         }
         menuCode = check.getInt(check.getString());
 
-        try{
-            while(!check.isValidMenuChefCode(menuCode)) {
+        try {
+            if (!check.isValidMenuChefCode(menuCode)) {
                 throw new MenuCodeisnotValidException("Your code is not in the menu list!");
             }
-        }catch (MenuCodeisnotValidException e){
+        } catch (MenuCodeisnotValidException e) {
             System.out.println(e.getMessage());
             menuCode = check.getInt(check.getString());
         }
 
-        switch (menuCode){
+        switch (menuCode) {
             case 1: {
                 System.out.println("Choose from the following colors: " + "RED" + ", " + "YELLOW" + ", " + "GREEN");
-                while (!check.isValidColor(getColor(),colorList))
-                {
+                while (!check.isValidColor(getColor(), colorList)) {
                     System.out.println("Choose a valid color.");
                 }
 
-                setColor(userID,userDetails,color);
-                backToMenu(userID,userDetails);
+                setColor(userID, userDetails, color);
+                backToMenu(userID, userDetails);
                 break;
             }
 
@@ -50,20 +51,21 @@ public class Chef {
         }
     }
 
-    public void setColor(long userID, MongoCollection<Document> userDetails, String color){
+    public void setColor(long userID, MongoCollection<Document> userDetails, String color) {
         userDetails.updateOne(eq("ID", userID),
-                new Document("$set", new Document("ID", userID).append("COLOR",color)));
+                new Document("$set", new Document("ID", userID).append("COLOR", color)));
     }
 
-    public void backToMenu(long userID, MongoCollection<Document> userDetails){
+    public void backToMenu(long userID, MongoCollection<Document> userDetails) {
         startMenu(userID, userDetails);
     }
 
-    public void backToMainMenu(MongoCollection<Document> userDetails){
+    public void backToMainMenu(MongoCollection<Document> userDetails) {
         Menu menu = new Menu();
         System.out.println();
         menu.startMenu(userDetails);
     }
+
     public String getColor() {
         System.out.print("Type your color: ");
         color = scanner.next();

@@ -16,7 +16,7 @@ public class ChefsTeam {
     Random random = new Random();
     Participant participant = new Participant();
 
-    public List<Long> getRandIDList(List<Long> teamIDs){
+    public List<Long> getRandIDList(List<Long> teamIDs) {
         List<Long> team = new ArrayList<>();
         for (int i = 1; i < 3; i++) {
             int randomIndex = random.nextInt(teamIDs.size());
@@ -26,7 +26,7 @@ public class ChefsTeam {
         return team;
     }
 
-    public List<Long> getChefIDs(MongoCollection<Document> userDetails){
+    public List<Long> getChefIDs(MongoCollection<Document> userDetails) {
         List<Long> chefs = new ArrayList<>();
         Block<Document> printBlock = new Block<Document>() {
             @Override
@@ -46,68 +46,59 @@ public class ChefsTeam {
         return chefs;
     }
 
-    public void generateRandomTeams(MongoCollection<Document> userDetails){
-        List<Long> teamIDs = new ArrayList<>();
-        teamIDs.addAll(participant.participantIDs(userDetails));
-        if(teamIDs.size() == 6)
-        {
-            List<Long> chefIDs = new ArrayList<>();
-            chefIDs.addAll(getChefIDs(userDetails));
-            if(chefIDs.size() == 3)
-            {
+    public void generateRandomTeams(MongoCollection<Document> userDetails) {
+        List<Long> teamIDs = new ArrayList<>(participant.participantIDs(userDetails));
+        int MAX_TEAM_SIZE = 6;
+        if (teamIDs.size() == MAX_TEAM_SIZE) {
+            List<Long> chefIDs = new ArrayList<>(getChefIDs(userDetails));
+            if (chefIDs.size() == 3) {
                 for (long chef : chefIDs) {
                     userDetails.updateOne(eq("ID", chef), new Document("$set", new Document("ID", chef).append("TEAM", getRandIDList(teamIDs))));
                 }
                 System.out.println("Participants have been assigned. GO check your team score!");
-            }
-            else
+            } else
                 System.out.println("Not all the Chefs are registered. Try later.");
-        }
-        else
+        } else
             System.out.println("Not all the Participants are registered. Try later.");
         backToMainMenu(userDetails);
 
     }
 
-    public void getTeamAverage(MongoCollection<Document> userDetails){
-        List<Long> participantIDs = new ArrayList<>();
-        participantIDs.addAll(participant.participantIDs(userDetails));
+    public void getTeamAverage(MongoCollection<Document> userDetails) {
+        List<Long> participantIDs = new ArrayList<>(participant.participantIDs(userDetails));
 
-        if(participantIDs.size() == 6) {
-            List<Long> chefIDs = new ArrayList<>();
-            chefIDs.addAll(getChefIDs(userDetails));
+        if (participantIDs.size() == 6) {   //MAGIC NUMBERS
+            List<Long> chefIDs = new ArrayList<>(getChefIDs(userDetails));
 
             if (chefIDs.size() == 3) {
-                for(long chefID: chefIDs){
+                for (long chefID : chefIDs) {
                     Block<Document> printBlock = new Block<Document>() {
                         @Override
                         public void apply(final Document document) {
                             String jsonHistory = document.toJson();
                             JsonNode jsonNode = null;
-                            final float[] average = {0};
+                            float average = 0f;
                             try {
                                 jsonNode = objectMapper.readTree(jsonHistory).get("TEAM");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                             for (final JsonNode objNode : jsonNode) {
-                                average[0] += participant.getParticipantGrade(objNode.get("$numberLong").asLong(), userDetails);
+                                average += participant.getParticipantGrade(objNode.get("$numberLong").asLong(), userDetails);
                             }
-                            average[0] /= 2;
-                            userDetails.updateOne(eq("ID", chefID), new Document("$set", new Document("ID", chefID).append("GRADE", average[0])));
+                            average /= 2;
+                            userDetails.updateOne(eq("ID", chefID), new Document("$set", new Document("ID", chefID).append("GRADE", average)));
                         }
                     };
                     userDetails.find(eq("ID", chefID)).forEach(printBlock);
                 }
-            }
-            else
+            } else
                 System.out.println("Not all the Chefs or participants have been registered. Try later!");
         }
     }
 
-    public void viewTeamScores(MongoCollection<Document> userDetails){
-        for(long chefID: getChefIDs(userDetails))
-        {
+    public void viewTeamScores(MongoCollection<Document> userDetails) {
+        for (long chefID : getChefIDs(userDetails)) {
             JsonNode jsonNode = null;
             Document doc = userDetails.find(eq("ID", chefID)).first();
             try {
@@ -119,7 +110,8 @@ public class ChefsTeam {
         }
         backToMainMenu(userDetails);
     }
-    public void backToMainMenu(MongoCollection<Document> userDetails){
+
+    public void backToMainMenu(MongoCollection<Document> userDetails) {
         Menu menu = new Menu();
         System.out.println();
         menu.startMenu(userDetails);

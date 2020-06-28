@@ -5,17 +5,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Menu {
+    enum Codes {
+        Participant(1),
+        Chef(2);
 
-    CheckInput check = new CheckInput();
-    UserServices user = new UserServices();
-    Participant participant = new Participant();
-    Chef chef = new Chef();
-    ChefsTeam team = new ChefsTeam();
-    int menuCode;
-    int userCode;
-    long userID;
+        int i;
+        Codes(int i) {
+            this.i = i;
+        }
+    }
+    private static final int PARTICIPANT_CODE = 1;
+    private static final int CHEF_CODE = 2;
 
-    public void startMenu(MongoCollection<Document> userDetails){
+    private final CheckInput checkInput = new CheckInput();
+    private final UserServices userService = new UserServices();
+    private final Participant participant = new Participant();
+    private final Chef chef = new Chef();
+    private final ChefsTeam team = new ChefsTeam();
+    private int menuCode;
+    private int userCode;
+    private long userID;
+
+    public void startMenu(MongoCollection<Document> userDetails) {
 
         List<String> menu = new ArrayList<>();
         System.out.println("------- MENU -------");
@@ -32,67 +43,68 @@ public class Menu {
             System.out.println(code);
         }
 
-        menuCode = check.getInt(check.getString());
+        menuCode = checkInput.getInt(checkInput.getString());
 
-       try{
-           while(!check.isValidMenuCode(menuCode)) {
-               throw new MenuCodeisnotValidException("Your code is not in the menu list!");
-           }
-       }catch (MenuCodeisnotValidException e){
-           System.out.println(e.getMessage());
-           menuCode = check.getInt(check.getString());
-       }
+        try {
+            if (!checkInput.isValidMenuCode(menuCode)) {
+                throw new MenuCodeisnotValidException("Your code is not in the menu list!");
+                //Redesign the method to  be called again when an exception is thrown
+            }
+        } catch (MenuCodeisnotValidException e) {
+            System.out.println(e.getMessage());
+            menuCode = checkInput.getInt(checkInput.getString());
+        }
 
-            switch (menuCode){
-                case 0 : {
-                    //Choose if user will be Participant or Chef
-                    userCode = getUserCode(userDetails);
-                    userID = user.getUserID(userDetails);
+        switch (menuCode) {
+            case 0: {
+                //Choose if user will be Participant or Chef
+                userCode = getUserCode(userDetails);
+                userID = userService.getUserID(userDetails);
 
-                    user.registerUser(userDetails,userCode);
-                    if(userCode == 1)
-                        participant.startContest(userID,userDetails);
-                    else
-                        chef.startMenu(userID,userDetails);
+                userService.registerUser(userDetails, userCode);
+                if (userCode == Codes.Participant.i)
+                    participant.startContest(userID, userDetails);
+                else
+                    chef.startMenu(userID, userDetails);
 
-                    System.out.println("Thank you for participating!");
-                    break;
-                }
-                case 1 : {
-                    user.showUserList("Participant".toUpperCase(),userDetails);
-                    break;
-                }
+                System.out.println("Thank you for participating!");
+                break;
+            }
+            case 1: {
+                userService.showUserList("Participant".toUpperCase(), userDetails);
+                break;
+            }
 
-                case 2 : {
-                    user.showUserList("Chef".toUpperCase(),userDetails);
-                    break;
-                }
+            case 2: {
+                userService.showUserList("Chef".toUpperCase(), userDetails);
+                break;
+            }
 
-                case 3 : {
-                    user.showResults(userDetails);
-                    break;
-                }
+            case 3: {
+                userService.showResults(userDetails);
+                break;
+            }
 
-                case 4: {
-                    team.generateRandomTeams(userDetails);
-                    break;
-                }
+            case 4: {
+                team.generateRandomTeams(userDetails);
+                break;
+            }
 
-                case 5: {
-                    team.getTeamAverage(userDetails);
-                    team.viewTeamScores(userDetails);
-                    break;
-                }
-                case 6 : {
-                    user.setRewords(userDetails);
-                    break;
-                }
+            case 5: {
+                team.getTeamAverage(userDetails);
+                team.viewTeamScores(userDetails);
+                break;
+            }
+            case 6: {
+                userService.setRewards(userDetails);
+                break;
+            }
 
-                case 7 : {
+            case 7: {
                 System.out.println("Session ended!");
                 System.exit(0);
-                }
             }
+        }
     }
 
 
@@ -108,12 +120,12 @@ public class Menu {
             System.out.println(code);
         }
 
-        userCode = check.getInt(check.getString());
+        userCode = checkInput.getInt(checkInput.getString());
 
-        while(!check.isValidRegisterCode(userCode))
-            userCode = check.getInt(check.getString());
+        while (!checkInput.isValidRegisterCode(userCode))
+            userCode = checkInput.getInt(checkInput.getString());
 
-        if(userCode == 0 )
+        if (userCode == 0)
             startMenu(userDetails);
 
         return userCode;

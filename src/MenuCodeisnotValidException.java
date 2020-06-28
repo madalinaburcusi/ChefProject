@@ -1,5 +1,6 @@
 class MenuCodeisnotValidException extends Exception {
-    private String message;
+    private final String message;
+
     public MenuCodeisnotValidException(String message) {
         super(message);
         this.message = message;

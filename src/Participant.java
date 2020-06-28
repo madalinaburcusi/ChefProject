@@ -11,33 +11,32 @@ import java.util.List;
 import static com.mongodb.client.model.Filters.eq;
 
 public class Participant {
-    Plate plate = new Plate();
+    Plate plate = new Plate();  //private final
     Grade grade = new Grade();
     public static String userType = "PARTICIPANT";
     ObjectMapper objectMapper = new ObjectMapper();
 
-    public void startContest(long userID, MongoCollection<Document> userDetails){
+    public void startContest(long userID, MongoCollection<Document> userDetails) {
 
-            int recipeSize = plate.getRecipeSize();
+        int recipeSize = plate.getRecipeSize();
 
-            //Show ingredients list
-            Ingredient i = new Ingredient();
-            i.showIngredients(recipeSize);
+        //Show ingredients list
+        Ingredient.showIngredients(recipeSize);
 
-            int gradeParticipant = grade.calculateIngredientScore(plate.makeYourPlate(recipeSize));
-            System.out.println("Your score in the competition is: " + gradeParticipant);
-            grade.setParticipantGrade(userID,userDetails,gradeParticipant);
+        int gradeParticipant = grade.calculateIngredientScore(plate.makeYourPlate(recipeSize));
+        System.out.println("Your score in the competition is: " + gradeParticipant);
+        grade.setParticipantGrade(userID, userDetails, gradeParticipant);
 
-            backToMenu(userDetails);
+        backToMenu(userDetails);
     }
 
-    public void backToMenu(MongoCollection<Document> userDetails){
+    public void backToMenu(MongoCollection<Document> userDetails) {
         Menu menu = new Menu();
         System.out.println();
         menu.startMenu(userDetails);
     }
 
-    public List<Long> participantIDs (MongoCollection<Document> userDetails){
+    public List<Long> participantIDs(MongoCollection<Document> userDetails) {
         List<Long> listIDs = new ArrayList<>();
         Block<Document> printBlock = new Block<Document>() {
             @Override
@@ -57,7 +56,7 @@ public class Participant {
         return listIDs;
     }
 
-    public int getParticipantGrade(long id, MongoCollection<Document> userDetails){
+    public int getParticipantGrade(long id, MongoCollection<Document> userDetails) {
         Document doc = userDetails.find(eq("ID", id)).first();
         JsonNode jsonNode = null;
         try {
